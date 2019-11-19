@@ -1,7 +1,9 @@
 <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 <canvas id = 'ca'></canvas>
 <script type="text/javascript">
-	var c,w,h,canvas;
+	var c,w,h,canvas,
+		x0, y0;
+
 
 	window.onload = function(){
 		document.getElementById('ca').width = window.innerWidth;
@@ -9,18 +11,35 @@
 		canvas = document.getElementById('ca');
 		w = canvas.width;
 		h = canvas.height;
+		x0 = 250;
+		y0 = h-250;
 		c = canvas.getContext('2d');
 		start();
 	}
 
 	function start(){
+		line(x0,x0,x0,y0,'blue');
+		line(x0,y0,w-x0,y0,'red');
+		for(var x = x0; x < w-x0; x+=50){
 
+		}
 	}
 
 
 
-	function line(x,y,x1,y1,color,w = 1){
+	function line(x,y,x1,y1,color = 'black',w = 1){
 		c.beginPath();
+		c.lineWidth = w;
+		c.strokeStyle = color;
+		c.moveTo(x,y);
+		c.lineTo(x1,y1);
+		c.stroke();
+		c.closePath();
+	}
+
+	function text(x,y,text,color = 'black'){
+		c.beginPath();
+		c.fillStyle = color;
 		c.moveTo(x,y);
 		c.lineTo(x1,y1);
 		c.stroke();
