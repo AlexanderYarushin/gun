@@ -2,7 +2,7 @@
 <canvas id = 'ca'></canvas>
 <script type="text/javascript">
 	var c,w,h,canvas,
-		x0, y0;
+	x0, y0;
 
 
 	window.onload = function(){
@@ -23,8 +23,12 @@
 		var r = 0;
 		for(var x = x0; x < w-x0; x+=50){
 			text(x,y0+20,r);
+			if(x!=x0) line(x,y0-5,x,y0+5);
 			r+=50;
 		}
+		text(w-x0+20,y0+5,'X(м)');
+		text(x0,x0-10,'Y(м)');
+		rect(x0,y0,50,20,'fill',0.3);
 	}
 
 
@@ -44,9 +48,32 @@
 		c.fillStyle = color;
 		c.textAlign = align;
 		c.textBaseLine = baseLine;
+		c.font = '15px Tahoma';
 		c.fillText(text,x,y);
 		c.closePath();
 	}
+
+
+	function rect(x,y,w,h,type,a = 0,color = 'black'){
+		c.beginPath();
+		if(type = 'fill') {
+			c.fillStyle = color;
+			c.fillRect(x,y,w,h);
+		}
+		if(type = 'stroke') {
+			c.strokeStyle = color;
+			c.strokeStyle(x,y,w,h);
+		}
+		c.closePath();
+		c.beginPath();
+		c.translate(x0,y0);
+		c.rotate(a);
+		c.translate(-x0,-y0);
+		c.rotate(-a);				
+		c.closePath();
+	}
+
+
 </script>
 <style type="text/css">
 	*{
