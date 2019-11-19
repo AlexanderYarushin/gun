@@ -20,8 +20,10 @@
 	function start(){
 		line(x0,x0,x0,y0,'blue');
 		line(x0,y0,w-x0,y0,'red');
+		var r = 0;
 		for(var x = x0; x < w-x0; x+=50){
-
+			text(x,y0+20,r);
+			r+=50;
 		}
 	}
 
@@ -37,12 +39,12 @@
 		c.closePath();
 	}
 
-	function text(x,y,text,color = 'black'){
+	function text(x,y,text,color = 'black',align = 'center', baseLine = 'bottom'){
 		c.beginPath();
 		c.fillStyle = color;
-		c.moveTo(x,y);
-		c.lineTo(x1,y1);
-		c.stroke();
+		c.textAlign = align;
+		c.textBaseLine = baseLine;
+		c.fillText(text,x,y);
 		c.closePath();
 	}
 </script>
