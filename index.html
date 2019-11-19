@@ -1,5 +1,32 @@
+<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 <canvas id = 'ca'></canvas>
-<script type="text/javascript"></script>
+<script type="text/javascript">
+	var c,w,h,canvas;
+
+	window.onload = function(){
+		document.getElementById('ca').width = window.innerWidth;
+		document.getElementById('ca').height = window.innerHeight;
+		canvas = document.getElementById('ca');
+		w = canvas.width;
+		h = canvas.height;
+		c = canvas.getContext('2d');
+		start();
+	}
+
+	function start(){
+
+	}
+
+
+
+	function line(x,y,x1,y1,color,w = 1){
+		c.beginPath();
+		c.moveTo(x,y);
+		c.lineTo(x1,y1);
+		c.stroke();
+		c.closePath();
+	}
+</script>
 <style type="text/css">
 	*{
 		margin: 0px;
