@@ -1,8 +1,12 @@
 <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+<div id = 'control'>
+	<input type="" name="" placeholder="Скорость">
+	<input type="Button" name="" value="Моделирование" onclick="moddeling()">
+</div>
 <canvas id = 'ca'></canvas>
 <script type="text/javascript">
 	var c,w,h,canvas,
-	x0, y0;
+	x0, y0, a = 45, v0 = 99.03;
 
 
 	window.onload = function(){
@@ -11,8 +15,8 @@
 		canvas = document.getElementById('ca');
 		w = canvas.width;
 		h = canvas.height;
-		x0 = 250;
-		y0 = h-250;
+		x0 = 100;
+		y0 = h-100;
 		c = canvas.getContext('2d');
 		start();
 	}
@@ -28,20 +32,46 @@
 		}
 		text(w-x0+20,y0+5,'X(м)');
 		text(x0,x0-10,'Y(м)');
-		rect(x0,y0,50,20,'fill',0.3);
+		rect(x0,y0,40,10,'fill',-a/180*Math.PI);
+		moddeling();
 	}
 
 
+	function moddeling(){
+		for(var t = 0; t < 50; t+=0.1){
+			var x = x0 + (v0 * Math.cos(toRad(a))) * t;
+			var sigm = 100;
+			var S = (1 / (sigm * Math.sqrt(2 * Math.PI))) * Math.pow(Math.E,(-Math.pow(Math.random()-1000,2) / (2 * sigm * sigm)));
+			console.log(S);
+			v0 = Math.sqrt((9.80665 * S) / Math.sin(2*toRad(a)));
 
-	function line(x,y,x1,y1,color = 'black',w = 1){
+			var y = y0 + ((v0 * Math.sin(toRad(a))) * t - ((9.80665 * t * t) / 2)) * -1;
+			arc(x,y ,0.8);
+			if(y > y0) break;
+		}
+
+	}
+
+
+	function line(x,y,x1,y1,color = 'black',w = 1, dash = [0]){
 		c.beginPath();
 		c.lineWidth = w;
 		c.strokeStyle = color;
+		c.setLineDash(dash)
 		c.moveTo(x,y);
 		c.lineTo(x1,y1);
 		c.stroke();
 		c.closePath();
 	}
+
+	function arc(x,y,r,color = 'black'){
+		c.beginPath();
+		c.fillStyle = color;
+		c.arc(x,y,r,0,Math.PI * 2, false);
+		c.fill();
+		c.closePath();
+	}
+
 
 	function text(x,y,text,color = 'black',align = 'center', baseLine = 'bottom'){
 		c.beginPath();
@@ -56,29 +86,50 @@
 
 	function rect(x,y,w,h,type,a = 0,color = 'black'){
 		c.beginPath();
-		if(type = 'fill') {
-			c.fillStyle = color;
-			c.fillRect(x,y,w,h);
-		}
-		if(type = 'stroke') {
-			c.strokeStyle = color;
-			c.strokeStyle(x,y,w,h);
-		}
-		c.closePath();
-		c.beginPath();
 		c.translate(x0,y0);
 		c.rotate(a);
+		if(type == 'fill') {
+			c.fillStyle = color;
+			c.fillRect(-w/2,-h/2,w,h);
+		}
+		if(type == 'stroke') {
+			c.strokeStyle = color;
+			c.strokeRect(x,y,w,h);
+		}
+		c.rotate(-a);	
 		c.translate(-x0,-y0);
-		c.rotate(-a);				
+		
 		c.closePath();
+
 	}
 
-
+	function toRad(a){ return a * Math.PI / 180; }
 </script>
 <style type="text/css">
 	*{
 		margin: 0px;
 		padding: 0px;
 		overflow: hidden;
+	}
+
+	#ca{
+		z-index: 1;
+	}
+
+	#control{
+		width:200px;
+		height: 200px;
+		border:1px solid #000;
+		position: absolute;
+		z-index: 999;
+		left:150px;
+		top:50px;
+
+	}
+
+	#control input{
+		display: block;
+		width:100%;
+		margin-bottom: 20px;
 	}
 </style>
