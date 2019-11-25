@@ -1,12 +1,20 @@
 <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+<script type="text/javascript" src = 'jquery-3.4.1.min.js'></script>
 <div id = 'control'>
-	<input type="" name="" placeholder="Скорость">
-	<input type="Button" name="" value="Моделирование" onclick="moddeling()">
+	<div id = 'angle'>Угол:</div>
+	<div id = 'velocity'>Скорость:</div>
+	<div id = 'math'>Мат. ожидание:</div>
+	<div id = 'disp'>Дисперсия:</div>
+	<div id = 'sr'>Среднеквадратичное отклонение:</div>
+	<div id = 'target'>Размер мишени:</div>
+	<div id = 'probability'>Вероятность попадания:</div>
+	<div id = 'sigm'>Правило трех сигм:</div>
+	<div id = 'cBullet'>Кол-во выстрелов:</div>
 </div>
 <canvas id = 'ca'></canvas>
 <script type="text/javascript">
 	var c,w,h,canvas,
-	x0, y0, a = 45, v0 = 99.03, sectors = [];
+	x0, y0, a = 75, v0 = 0, sectors = [], delta = 200;
 
 
 	window.onload = function(){
@@ -34,6 +42,7 @@
 		text(w-x0+20,y0+5,'X(м)');
 		text(x0,x0-10,'Y(м)');
 		rect(x0,y0,40,10,'fill',-a/180*Math.PI);
+		rect(1000 + x0 - delta / 2, y0 + 30, delta, 10, 'fill');
 		moddeling();
 	}
 
@@ -42,10 +51,16 @@
 		var sigm = 1;
 		var sum = 0;
 		var po = [];
-		for(var i = 0; i < 1000; ++i){
+		var srDist = 0;
+		var srDist2 = 0;
+		var countDelta = 0;
+		var disp = [];
+		var countBullet = 5000;
+		for(var i = 0; i < countBullet; ++i){
 			sum = 0;
-			for(var k = 0; k < 1000; ++k) sum += Math.random();
-				S = (sum - 500) * 15 + 1000;
+			var sr = 12;
+			for(var k = 0; k < sr; ++k) sum += Math.random();
+				S = 1000 + (sum - sr/2) * 70;
 			v0 = Math.sqrt((9.80665 * S) / Math.sin(2*toRad(a)));
 			po = [];
 			for(var t = 0; t < 50; t+=0.5){
@@ -53,16 +68,23 @@
 				var y = y0 + ((v0 * Math.sin(toRad(a))) * t - ((9.80665 * t * t) / 2)) * -1;
 				po.push({x:x,y:y});
 				if(y > y0) {
+					//console.log(x-x0);
+					srDist += x-x0;
+					srDist2 += Math.pow(x-x0,2);
+					disp.push(x-x0);
 					for(var j = 0; j < sectors.length-1; ++j){
 						if(x-x0 >= sectors[j].s && x-x0 < sectors[j+1].s){
 							sectors[j].count++;
 						}
 					}
+					if(x-x0 >= 1000 - (delta / 2) && x-x0 <= 1000 + (delta / 2)){
+						countDelta++;
+					}
 					break;
 				}
 			}
 			for(var q = 0; q < po.length-1; ++q){
-				line(po[q].x,po[q].y, po[q+1].x, po[q+1].y,'black',0.1);
+				//line(po[q].x,po[q].y, po[q+1].x, po[q+1].y,'black',0.1);
 			}
 		}
 
@@ -71,13 +93,48 @@
 
 		for(var i = 0; i < sectors.length; ++i){
 			var y = y0;
-			for(var j = 0; j < sectors[i].count; ++j){
+			for(var j = 0; j < sectors[i].count/4; ++j){
 				rect(sectors[i].s+x0+5,y,40,-1,'fill');
 				y-=2;
 			}
 		}
 
+		var M = srDist / countBullet;
+		var s = 0;
+		var threeSigm = 0;
+
+		for(var i = 0; i < disp.length; ++i){
+			s += Math.pow(disp[i] - M,2);
+
+		}
+		var D = s / (countBullet);
+
+		for(var i = 0; i < disp.length; ++i){
+			if(disp[i] >= 1000 - Math.sqrt(D) * 3 && disp[i] <= 1000 + Math.sqrt(D) * 3){
+				threeSigm++;
+				
+			}
+		}
+
+
+
+		$('#math').html('Математическое ожидание: '+M.toFixed(5));
+		$('#disp').html('Дисперсия: '+D.toFixed(5));
+		$('#target').html('Размер мишени: '+delta+' м');
+		$('#probability').html('Вероятность попадания: '+((countDelta / countBullet) * 100)+' %');
+		$('#sr').html('Среднеквадратичное отклонение: '+Math.sqrt(D).toFixed(5));
+		$('#sigm').html('Правило трех сигм: '+threeSigm/countBullet*100+" %");
+		$('#cBullet').html('Количество выстрелов: '+countBullet);
+		$('#angle').html('Угол: '+a+' градусов');
+		$('#velocity').html('Скорость: '+v0+' м/с');
+		line(1000 + x0 - Math.sqrt(D) * 3, y0+80,1000 + x0 - Math.sqrt(D) * 3,y0-80,'green',2 );
+		line(1000 + x0 + Math.sqrt(D) * 3, y0+80,1000 + x0 + Math.sqrt(D) * 3,y0-80,'green',2 );
+		console.log(D);
+
+
 	}
+
+
 
 
 	function line(x,y,x1,y1,color = 'black',w = 1, dash = [0]){
@@ -122,7 +179,7 @@
 		}
 		c.rotate(-a);	
 		if(a != 0)c.translate(-x0,-y0);
-		
+
 		c.closePath();
 
 	}
@@ -141,13 +198,15 @@
 	}
 
 	#control{
-		width:200px;
-		height: 200px;
-		border:1px solid #000;
+		padding: 5px;
+		
+		
 		position: absolute;
 		z-index: 999;
 		left:150px;
-		top:50px;
+		top:70px;
+		font-family: 'Tahoma';
+		font-size: 25px;
 
 	}
 
