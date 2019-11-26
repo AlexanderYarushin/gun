@@ -1,6 +1,12 @@
 <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 <script type="text/javascript" src = 'jquery-3.4.1.min.js'></script>
 <div id = 'control'>
+	<input type="number" name="" id = 'sav' placeholder="Ср. откл. угла" value="5">
+	<input type="number" name="" id = 'svv' placeholder="Ср. откл. скорости" value = "5">
+	<div id = 'ma'>Мат. ожидание угла</div>
+	<div id = 'sa'>Ср. отклонение угла</div>
+	<div id = 'mv'>Мат. ожидание скорости</div>
+	<div id = 'sv'>Ср. отклонение скорости</div>
 	<div id = 'angle'>Угол:</div>
 	<div id = 'velocity'>Скорость:</div>
 	<div id = 'math'>Мат. ожидание:</div>
@@ -10,11 +16,12 @@
 	<div id = 'probability'>Вероятность попадания:</div>
 	<div id = 'sigm'>Правило трех сигм:</div>
 	<div id = 'cBullet'>Кол-во выстрелов:</div>
+	<input type="button" name="" value="Моделирование" onclick="start()">
 </div>
 <canvas id = 'ca'></canvas>
 <script type="text/javascript">
 	var c,w,h,canvas,
-	x0, y0, a = 75, v0 = 0, sectors = [], delta = 200;
+	x0, y0, a = 45, v0 = 0, sectors = [], delta = 50;
 
 
 	window.onload = function(){
@@ -30,6 +37,8 @@
 	}
 
 	function start(){
+		sectors = [];
+		c.clearRect(0,0,w,h);
 		line(x0,x0,x0,y0,'blue');
 		line(x0,y0,w-x0,y0,'red');
 		var r = 0;
@@ -48,6 +57,7 @@
 
 
 	function moddeling(){
+	//	for(var z = 0; z < 5000; z+=100){
 		var sigm = 1;
 		var sum = 0;
 		var po = [];
@@ -55,14 +65,23 @@
 		var srDist2 = 0;
 		var countDelta = 0;
 		var disp = [];
-		var countBullet = 5000;
+		var countBullet = 1000;
+		var ma,sa,mv,sv;
 		for(var i = 0; i < countBullet; ++i){
 			sum = 0;
 			var sr = 12;
 			for(var k = 0; k < sr; ++k) sum += Math.random();
-				S = 1000 + (sum - sr/2) * 70;
-			v0 = Math.sqrt((9.80665 * S) / Math.sin(2*toRad(a)));
+			S = 1000;
+			ma = 45;
+			sa = $('#sav').val();
+			a = ma + (sum - sr/2) * sa;
+			mv = (Math.sqrt((9.80665 * S) / Math.sin(2*toRad(a))));
+			sv = $('#svv').val();
+			v0 = mv + (sum - sr/2) * sv;
 			po = [];
+			
+			
+
 			for(var t = 0; t < 50; t+=0.5){
 				var x = x0 + (v0 * Math.cos(toRad(a))) * t;
 				var y = y0 + ((v0 * Math.sin(toRad(a))) * t - ((9.80665 * t * t) / 2)) * -1;
@@ -93,7 +112,7 @@
 
 		for(var i = 0; i < sectors.length; ++i){
 			var y = y0;
-			for(var j = 0; j < sectors[i].count/4; ++j){
+			for(var j = 0; j < sectors[i].count; ++j){
 				rect(sectors[i].s+x0+5,y,40,-1,'fill');
 				y-=2;
 			}
@@ -110,7 +129,7 @@
 		var D = s / (countBullet);
 
 		for(var i = 0; i < disp.length; ++i){
-			if(disp[i] >= 1000 - Math.sqrt(D) * 3 && disp[i] <= 1000 + Math.sqrt(D) * 3){
+			if(disp[i] >= M - Math.sqrt(D) * 3 && disp[i] <= M + Math.sqrt(D) * 3){
 				threeSigm++;
 				
 			}
@@ -127,14 +146,18 @@
 		$('#cBullet').html('Количество выстрелов: '+countBullet);
 		$('#angle').html('Угол: '+a+' градусов');
 		$('#velocity').html('Скорость: '+v0+' м/с');
-		line(1000 + x0 - Math.sqrt(D) * 3, y0+80,1000 + x0 - Math.sqrt(D) * 3,y0-80,'green',2 );
-		line(1000 + x0 + Math.sqrt(D) * 3, y0+80,1000 + x0 + Math.sqrt(D) * 3,y0-80,'green',2 );
-		console.log(D);
+		$('#ma').html('Мат. ожидание угла: '+ma);
+		$('#sa').html('Ср. отклонение угла: '+sa);
+		$('#mv').html('Мат. ожидание скорости: '+mv);
+		$('#sv').html('Ср. отклонение скорости: '+sv);
+		line(M + x0 - Math.sqrt(D) * 3, y0+80,M + x0 - Math.sqrt(D) * 3,y0-80,'green',2 );
+		line(M + x0 + Math.sqrt(D) * 3, y0+80,M + x0 + Math.sqrt(D) * 3,y0-80,'green',2 );
+		console.log(M);
 
 
-	}
+	
 
-
+}
 
 
 	function line(x,y,x1,y1,color = 'black',w = 1, dash = [0]){
@@ -213,6 +236,6 @@
 	#control input{
 		display: block;
 		width:100%;
-		margin-bottom: 20px;
+		
 	}
 </style>
