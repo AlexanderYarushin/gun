@@ -57,36 +57,35 @@
 
 
 	function moddeling(){
-	//	for(var z = 0; z < 5000; z+=100){
-		var sigm = 1;
-		var sum = 0;
-		var po = [];
-		var srDist = 0;
-		var srDist2 = 0;
-		var countDelta = 0;
-		var disp = [];
-		var countBullet = 1000;
-		var ma,sa,mv,sv;
-		for(var i = 0; i < countBullet; ++i){
-			sum = 0;
-			var sr = 12;
-			for(var k = 0; k < sr; ++k) sum += Math.random();
-			S = 1000;
-			ma = 45;
-			sa = $('#sav').val();
-			a = ma + (sum - sr/2) * sa;
-			mv = (Math.sqrt((9.80665 * S) / Math.sin(2*toRad(a))));
-			sv = $('#svv').val();
-			v0 = mv + (sum - sr/2) * sv;
-			po = [];
-			
-			
+			var sigm = 1;
+			var sum = 0;
+			var po = [];
+			var srDist = 0;
+			var srDist2 = 0;
+			var countDelta = 0;
+			var disp = [];
+			var countBullet = 1000;
+			var ma,sa,mv,sv;
+			for(var i = 0; i < countBullet; ++i){
+				sum = 0;
+				var sr = 12;
+				for(var k = 0; k < sr; ++k) sum += Math.random();
+					S = 1000;
+				ma = 45;
+				sa = $('#sav').val();
+				a = ma + (sum - sr/2) * sa;
+				mv = (Math.sqrt((9.80665 * S) / Math.sin(2*toRad(ma))));
+				sv = $('#svv').val();
+				v0 = mv + (sum - sr/2) * sv;
+				po = [];
 
-			for(var t = 0; t < 50; t+=0.5){
-				var x = x0 + (v0 * Math.cos(toRad(a))) * t;
-				var y = y0 + ((v0 * Math.sin(toRad(a))) * t - ((9.80665 * t * t) / 2)) * -1;
-				po.push({x:x,y:y});
-				if(y > y0) {
+
+
+				for(var t = 0; t < 50; t+=0.5){
+					var x = x0 + (v0 * Math.cos(toRad(a))) * t;
+					var y = y0 + ((v0 * Math.sin(toRad(a))) * t - ((9.80665 * t * t) / 2)) * -1;
+					po.push({x:x,y:y});
+					if(y > y0) {
 					//console.log(x-x0);
 					srDist += x-x0;
 					srDist2 += Math.pow(x-x0,2);
@@ -152,62 +151,61 @@
 		$('#sv').html('Ср. отклонение скорости: '+sv);
 		line(M + x0 - Math.sqrt(D) * 3, y0+80,M + x0 - Math.sqrt(D) * 3,y0-80,'green',2 );
 		line(M + x0 + Math.sqrt(D) * 3, y0+80,M + x0 + Math.sqrt(D) * 3,y0-80,'green',2 );
-		console.log(M);
+		console.log(D);
+
+	}
 
 
-	
 
+
+function line(x,y,x1,y1,color = 'black',w = 1, dash = [0]){
+	c.beginPath();
+	c.lineWidth = w;
+	c.strokeStyle = color;
+	c.setLineDash(dash)
+	c.moveTo(x,y);
+	c.lineTo(x1,y1);
+	c.stroke();
+	c.closePath();
+}
+
+function arc(x,y,r,color = 'black'){
+	c.beginPath();
+	c.fillStyle = color;
+	c.arc(x,y,r,0,Math.PI * 2, false);
+	c.fill();
+	c.closePath();
 }
 
 
-	function line(x,y,x1,y1,color = 'black',w = 1, dash = [0]){
-		c.beginPath();
-		c.lineWidth = w;
-		c.strokeStyle = color;
-		c.setLineDash(dash)
-		c.moveTo(x,y);
-		c.lineTo(x1,y1);
-		c.stroke();
-		c.closePath();
-	}
+function text(x,y,text,color = 'black',align = 'center', baseLine = 'bottom'){
+	c.beginPath();
+	c.fillStyle = color;
+	c.textAlign = align;
+	c.textBaseLine = baseLine;
+	c.font = '15px Tahoma';
+	c.fillText(text,x,y);
+	c.closePath();
+}
 
-	function arc(x,y,r,color = 'black'){
-		c.beginPath();
+
+function rect(x,y,w,h,type,a = 0,color = 'black'){
+	c.beginPath();
+	if(a != 0)c.translate(x0,y0);
+	c.rotate(a);
+	if(type == 'fill') {
 		c.fillStyle = color;
-		c.arc(x,y,r,0,Math.PI * 2, false);
-		c.fill();
-		c.closePath();
-	}
-
-
-	function text(x,y,text,color = 'black',align = 'center', baseLine = 'bottom'){
-		c.beginPath();
-		c.fillStyle = color;
-		c.textAlign = align;
-		c.textBaseLine = baseLine;
-		c.font = '15px Tahoma';
-		c.fillText(text,x,y);
-		c.closePath();
-	}
-
-
-	function rect(x,y,w,h,type,a = 0,color = 'black'){
-		c.beginPath();
-		if(a != 0)c.translate(x0,y0);
-		c.rotate(a);
-		if(type == 'fill') {
-			c.fillStyle = color;
-			if(a != 0)c.fillRect(-w/2,-h/2,w,h); else c.fillRect(x,y,w,h);
-
-		}
-		c.rotate(-a);	
-		if(a != 0)c.translate(-x0,-y0);
-
-		c.closePath();
+		if(a != 0)c.fillRect(-w/2,-h/2,w,h); else c.fillRect(x,y,w,h);
 
 	}
+	c.rotate(-a);	
+	if(a != 0)c.translate(-x0,-y0);
 
-	function toRad(a){ return a * Math.PI / 180; }
+	c.closePath();
+
+}
+
+function toRad(a){ return a * Math.PI / 180; }
 </script>
 <style type="text/css">
 	*{
